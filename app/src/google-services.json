@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "649445141006",
+    "firebase_url": "https://smokingproject-745ee.firebaseio.com",
+    "project_id": "smokingproject-745ee",
+    "storage_bucket": "smokingproject-745ee.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:649445141006:android:271e5a0177cc2574",
+        "android_client_info": {
+          "package_name": "com.example.parkjunghun.smokingproject2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "649445141006-df9kg4dnploivcsd9c15unvs20h3k0g5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDXNLkyEOXOcWq_3R2Oau36glS49uunOs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
