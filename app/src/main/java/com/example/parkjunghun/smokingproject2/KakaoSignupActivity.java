@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.kakao.auth.ErrorCode;
 import com.kakao.network.ErrorResult;
@@ -50,12 +51,14 @@ public class KakaoSignupActivity extends AppCompatActivity {
                 String kakaoNickname = userProfile.getNickname();     // Nickname 값을 가져옴
                 String url = String.valueOf(userProfile.getProfileImagePath());
 
+
                 Logger.d("UserProfile : " + userProfile);
                 Log.d("kakao", "==========================");
                 Log.d("kakao", ""+userProfile);
                 Log.d("kakao", kakaoID);
                 Log.d("kakao", kakaoNickname);
                 Log.d("kakao", "==========================");
+                Toast.makeText(getApplicationContext(),"connection",Toast.LENGTH_SHORT).show();
                 redirectMainActivity(url, kakaoNickname); // 로그인 성공시 MainActivity로
             }
         });
