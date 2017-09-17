@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
+
 
 
 android {
@@ -46,5 +46,6 @@ dependencies {
 dependencies {
     compile 'com.android.support.constraint:constraint-layout:+'
 }
+apply plugin: 'com.google.gms.google-services'
 
 
