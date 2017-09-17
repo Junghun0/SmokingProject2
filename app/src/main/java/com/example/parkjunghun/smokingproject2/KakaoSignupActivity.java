@@ -50,9 +50,6 @@ public class KakaoSignupActivity extends AppCompatActivity {
                 String kakaoNickname = userProfile.getNickname();     // Nickname 값을 가져옴
                 String url = String.valueOf(userProfile.getProfileImagePath());
 
-
-                Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-                startActivity(intent);
                 Logger.d("UserProfile : " + userProfile);
                 Log.d("kakao", "==========================");
                 Log.d("kakao", ""+userProfile);
