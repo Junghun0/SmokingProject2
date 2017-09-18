@@ -1,15 +1,22 @@
 package com.example.parkjunghun.smokingproject2;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 
 import com.kakao.auth.ISessionCallback;
 import com.kakao.auth.Session;
-import com.kakao.usermgmt.response.model.UserProfile;
+import com.kakao.usermgmt.UserManagement;
+import com.kakao.usermgmt.callback.LogoutResponseCallback;
 import com.kakao.util.exception.KakaoException;
 import com.kakao.util.helper.log.Logger;
+
+import java.security.MessageDigest;
 
 public class LoginActivity extends AppCompatActivity {
     SessionCallback callback;
@@ -20,6 +27,14 @@ public class LoginActivity extends AppCompatActivity {
 
         callback = new SessionCallback();
         Session.getCurrentSession().addCallback(callback);
+
+        UserManagement.requestLogout(new LogoutResponseCallback() {
+            @Override
+            public void onCompleteLogout() {
+
+            }
+        });
+
 
     }
     @Override
@@ -47,6 +62,7 @@ public class LoginActivity extends AppCompatActivity {
             if(exception != null) {
                 Logger.e(exception);
             }
+            getAppKeyHash();
             setContentView(R.layout.activity_login); // 세션 연결이 실패했을때
         }                                            // 로그인화면을 다시 불러옴
     }
@@ -57,12 +73,19 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
-    public void onSuccess(UserProfile userProfile) {
-        //로그인에 성공하면 로그인한 사용자의 일련번호, 닉네임, 이미지url등을 리턴합니다.
-        //사용자 ID는 보안상의 문제로 제공하지 않고 일련번호는 제공합니다.
-        Log.e("UserProfile", userProfile.toString());
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(intent);
-        finish();
+    private void getAppKeyHash() {
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
+            for (Signature signature : info.signatures) {
+                MessageDigest md;
+                md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                String something = new String(Base64.encode(md.digest(), 0));
+                Log.d("Hash key", something);
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            Log.e("name not found", e.toString());
+        }
     }
 }
