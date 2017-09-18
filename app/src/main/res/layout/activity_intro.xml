@@ -7,6 +7,4 @@
     android:background="@drawable/intro"
     tools:context="com.example.parkjunghun.smokingproject2.IntroActivity">
 
-
-
 </LinearLayout>

@@ -6,11 +6,9 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -19,12 +17,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.util.Set;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
     private static String address = "98:D3:32:30:F2:76";
+    public static final int REQUEST_ENABLE_BT = 0;
 
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
@@ -50,7 +48,28 @@ public class MainActivity extends AppCompatActivity {
         offBtn = (Button) findViewById(R.id.close);
 
         btAdapter = BluetoothAdapter.getDefaultAdapter();       // get Bluetooth adapter
-        checkBTState();
+        if(checkBTState()){
+            BluetoothDevice device = btAdapter.getRemoteDevice(address);
+            try {
+                btSocket = createBluetoothSocket(device);
+            } catch (Exception e) {
+                errorExit("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
+            }
+            btAdapter.cancelDiscovery();
+
+            try {
+                btSocket.connect();
+            } catch (Exception e) {
+                try {
+                    btSocket.close();
+                } catch (Exception e2) {
+                    errorExit("Fatal Error", "In onResume() and unable to close socket during connection failure" + e2.getMessage() + ".");
+                }
+            }
+
+            mConnectedThread = new ConnectedThread(btSocket);
+            mConnectedThread.start();
+        }
 
         onBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -81,28 +100,7 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
-        BluetoothDevice device = btAdapter.getRemoteDevice(address);
 
-        try {
-            btSocket = createBluetoothSocket(device);
-        } catch (IOException e) {
-            errorExit("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
-        }
-
-        btAdapter.cancelDiscovery();
-
-        try {
-            btSocket.connect();
-        } catch (IOException e) {
-            try {
-                btSocket.close();
-            } catch (IOException e2) {
-                errorExit("Fatal Error", "In onResume() and unable to close socket during connection failure" + e2.getMessage() + ".");
-            }
-        }
-
-        mConnectedThread = new ConnectedThread(btSocket);
-        mConnectedThread.start();
     }
 
     @Override
@@ -110,27 +108,30 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         try {
             btSocket.close();
-        } catch (IOException e2) {
+        } catch (Exception e2) {
             errorExit("Fatal Error", "In onPause() and failed to close socket." + e2.getMessage() + ".");
         }
     }
 
-    private void checkBTState() {
+    private boolean checkBTState() {
         if (btAdapter == null) {
-            errorExit("Fatal Error", "Bluetooth not support");
+            Toast.makeText(getApplicationContext(), "지원안됌", Toast.LENGTH_SHORT).show();
+            //errorExit("Fatal Error", "Bluetooth not support");
+            return false;
         } else {
             if (btAdapter.isEnabled()) {
             } else {
                 //Prompt user to turn on Bluetooth
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBtIntent, 1);
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+
             }
+            return true;
         }
     }
 
     private void errorExit(String title, String message) {
-        Toast.makeText(getBaseContext(), title + " - " + message, Toast.LENGTH_LONG).show();
-        finish();
+        Toast.makeText(getApplicationContext(), title + " - " + message, Toast.LENGTH_LONG).show();
     }
 
     private class ConnectedThread extends Thread {
@@ -144,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
-            } catch (IOException e) {
+            } catch (Exception e) {
             }
 
             mmInStream = tmpIn;
@@ -155,8 +156,9 @@ public class MainActivity extends AppCompatActivity {
             byte[] msgBuffer = message.getBytes();
             try {
                 mmOutStream.write(msgBuffer);
-            } catch (IOException e) {
+            } catch (Exception e) {
             }
         }
     }
+
 }
