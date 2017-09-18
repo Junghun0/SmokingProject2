@@ -41,10 +41,8 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         Intent intent = getIntent();
         String username = intent.getExtras().getString("nickname");
-        actionBar.setTitle(username+"님 환영합니다.");
+        actionBar.setTitle(username+"hi");
         setContentView(R.layout.activity_main);
-
-
 
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTrasaction = fm.beginTransaction();
