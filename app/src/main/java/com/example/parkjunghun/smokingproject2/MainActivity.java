@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kakao.kakaolink.KakaoLink;
@@ -24,6 +25,10 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
+import android.os.Handler;
+
+import java.util.logging.LogRecord;
+
 public class MainActivity extends AppCompatActivity {
 
     private static String address = "98:D3:32:30:F2:76";
@@ -32,8 +37,15 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
     private StringBuilder sb = new StringBuilder();
+    private static int flag = 0;
+
+    Handler h;
+    final int RECIEVE_MESSAGE = 1;
+    BluetoothDevice device;
 
     Button onBtn, offBtn;
+    TextView battery;
+
     private ConnectedThread mConnectedThread;
     // SPP UUID service
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -46,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         Intent intent = getIntent();
         String username = intent.getExtras().getString("nickname");
-        actionBar.setTitle(username+"hi");
+        actionBar.setTitle(username + "hi");
         setContentView(R.layout.activity_main);
 
         FragmentManager fm = getSupportFragmentManager();
@@ -58,8 +70,8 @@ public class MainActivity extends AppCompatActivity {
         offBtn = (Button) findViewById(R.id.close);
 
         btAdapter = BluetoothAdapter.getDefaultAdapter();       // get Bluetooth adapter
-        if(checkBTState()){
-            BluetoothDevice device = btAdapter.getRemoteDevice(address);
+        if (checkBTState()) {
+            device = btAdapter.getRemoteDevice(address);
             try {
                 btSocket = createBluetoothSocket(device);
             } catch (Exception e) {
@@ -84,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         onBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mConnectedThread.write("1");
-                try{
+                /*try{
             final KakaoLink kakaoLink = KakaoLink.getKakaoLink(getApplicationContext());
             final KakaoTalkLinkMessageBuilder kakaoBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
 
@@ -95,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         }
         catch (KakaoParameterException e){
             e.printStackTrace();
-        }
+        }*/
                 Toast.makeText(getApplicationContext(), "OPEN", Toast.LENGTH_SHORT).show();
             }
         });
@@ -105,6 +117,25 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "CLOSE", Toast.LENGTH_SHORT).show();
             }
         });
+
+        h = new Handler() {
+            public void handleMessage(android.os.Message msg) {
+                switch (msg.what) {
+                    case RECIEVE_MESSAGE:
+                        byte[] readBuf = (byte[]) msg.obj;
+                        String strIncom = new String(readBuf, 0, msg.arg1);
+                        sb.append(strIncom);
+                        int endOfLineIndex = sb.indexOf("\r\n");
+                        if (endOfLineIndex > 0) {
+                            String sbprint = sb.substring(0, endOfLineIndex);
+                            sb.delete(0, sb.length());
+
+                            battery.setText(sbprint);
+                        }
+                        break;
+                }
+            }
+        };
 
     }
 
@@ -122,6 +153,31 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
+        try {
+            btSocket = createBluetoothSocket(device);
+        } catch (IOException e) {
+            errorExit("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
+        }
+
+        // Discovery is resource intensive.  Make sure it isn't going on
+        // when you attempt to connect and pass your message.
+        btAdapter.cancelDiscovery();
+
+        // Establish the connection.  This will block until it connects.
+        try {
+            btSocket.connect();
+        } catch (IOException e) {
+            try {
+                btSocket.close();
+            } catch (IOException e2) {
+                errorExit("Fatal Error", "In onResume() and unable to close socket during connection failure" + e2.getMessage() + ".");
+            }
+        }
+
+        // Create a data stream so we can talk to server.
+
+        mConnectedThread = new ConnectedThread(btSocket);
+        mConnectedThread.start();
 
     }
 
@@ -178,8 +234,23 @@ public class MainActivity extends AppCompatActivity {
             byte[] msgBuffer = message.getBytes();
             try {
                 mmOutStream.write(msgBuffer);
+            } catch (Exception e) {
             }
-            catch (Exception e) {
+        }
+
+        public void run() {
+            byte[] buffer = new byte[256];  // buffer store for the stream
+            int bytes; // bytes returned from read()
+
+            // Keep listening to the InputStream until an exception occurs
+            while (true) {
+                try {
+                    // Read from the InputStream
+                    bytes = mmInStream.read(buffer);        // Get number of bytes and message in "buffer"
+                    h.obtainMessage(RECIEVE_MESSAGE, bytes, -1, buffer).sendToTarget();     // Send to message queue Handler
+                } catch (IOException e) {
+                    break;
+                }
             }
         }
     }
@@ -197,6 +268,6 @@ public class MainActivity extends AppCompatActivity {
 //        catch (KakaoParameterException e){
 //            e.printStackTrace();
 //        }
-    }
-
+//    }
+}
 
