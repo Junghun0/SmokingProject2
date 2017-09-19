@@ -128,9 +128,8 @@ public class MainActivity extends AppCompatActivity {
                         int endOfLineIndex = sb.indexOf("\r\n");
                         if (endOfLineIndex > 0) {
                             String sbprint = sb.substring(0, endOfLineIndex);
-                            sb.delete(0, sb.length());
-
                             battery.setText(sbprint);
+                            sb.delete(0, sb.length());
                         }
                         break;
                 }
