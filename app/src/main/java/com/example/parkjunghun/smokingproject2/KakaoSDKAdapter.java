@@ -44,12 +44,12 @@ public class KakaoSDKAdapter extends KakaoAdapter {
         return new IApplicationConfig() {
             @Override
             public Activity getTopActivity() {
-                return com.example.parkjunghun.smokingproject2.GlobalApplication.getCurrentActivity();
+                return GlobalApplication.getCurrentActivity();
             }
 
             @Override
             public Context getApplicationContext() {
-                return com.example.parkjunghun.smokingproject2.GlobalApplication.getGlobalApplicationContext();
+                return GlobalApplication.getGlobalApplicationContext();
             }
         };
     }

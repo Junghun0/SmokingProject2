@@ -1,3 +1,4 @@
+apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.android.application'
 
 
@@ -46,6 +47,9 @@ dependencies {
 dependencies {
     compile 'com.android.support.constraint:constraint-layout:+'
 }
-apply plugin: 'com.google.gms.google-services'
+
+dependencies {
+    compile 'com.google.firebase:firebase-database:10.0.1'
+}
 
 

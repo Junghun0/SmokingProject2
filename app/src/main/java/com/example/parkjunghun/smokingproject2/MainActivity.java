@@ -14,6 +14,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.kakao.kakaolink.KakaoLink;
+import com.kakao.kakaolink.KakaoTalkLinkMessageBuilder;
+import com.kakao.util.KakaoParameterException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -164,6 +168,21 @@ public class MainActivity extends AppCompatActivity {
                 mmOutStream.write(msgBuffer);
             } catch (Exception e) {
             }
+        }
+    }
+
+    public void sharekakao(View v){
+        try{
+            final KakaoLink kakaoLink = KakaoLink.getKakaoLink(this);
+            final KakaoTalkLinkMessageBuilder kakaoBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
+
+            kakaoBuilder.addText("smokingproject 테스트");
+            kakaoBuilder.addAppButton("앱실행");
+            kakaoLink.sendMessage(kakaoBuilder,this);
+
+        }
+        catch (KakaoParameterException e){
+            e.printStackTrace();
         }
     }
 
