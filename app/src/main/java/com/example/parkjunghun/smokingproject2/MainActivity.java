@@ -84,6 +84,18 @@ public class MainActivity extends AppCompatActivity {
         onBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mConnectedThread.write("1");
+                try{
+            final KakaoLink kakaoLink = KakaoLink.getKakaoLink(getApplicationContext());
+            final KakaoTalkLinkMessageBuilder kakaoBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
+
+            kakaoBuilder.addText("smokingproject 테스트다!");
+            kakaoBuilder.addAppButton("앱실행/앱설치");
+            kakaoLink.sendMessage(kakaoBuilder,getApplicationContext());
+
+        }
+        catch (KakaoParameterException e){
+            e.printStackTrace();
+        }
                 Toast.makeText(getApplicationContext(), "OPEN", Toast.LENGTH_SHORT).show();
             }
         });
@@ -166,24 +178,25 @@ public class MainActivity extends AppCompatActivity {
             byte[] msgBuffer = message.getBytes();
             try {
                 mmOutStream.write(msgBuffer);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
             }
         }
     }
 
-    public void sharekakao(View v){
-        try{
-            final KakaoLink kakaoLink = KakaoLink.getKakaoLink(this);
-            final KakaoTalkLinkMessageBuilder kakaoBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
-
-            kakaoBuilder.addText("smokingproject 테스트다!");
-            kakaoBuilder.addAppButton("앱실행/앱설치");
-            kakaoLink.sendMessage(kakaoBuilder,this);
-
-        }
-        catch (KakaoParameterException e){
-            e.printStackTrace();
-        }
+//    public void sendkakao(View v){
+//        try{
+//            final KakaoLink kakaoLink = KakaoLink.getKakaoLink(this);
+//            final KakaoTalkLinkMessageBuilder kakaoBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
+//
+//            kakaoBuilder.addText("smokingproject 테스트다!");
+//            kakaoBuilder.addAppButton("앱실행/앱설치");
+//            kakaoLink.sendMessage(kakaoBuilder,this);
+//
+//        }
+//        catch (KakaoParameterException e){
+//            e.printStackTrace();
+//        }
     }
 
-}
+
