@@ -14,6 +14,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.kakao.kakaolink.KakaoLink;
+import com.kakao.kakaolink.KakaoTalkLinkMessageBuilder;
+import com.kakao.util.KakaoParameterException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -80,6 +84,18 @@ public class MainActivity extends AppCompatActivity {
         onBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mConnectedThread.write("1");
+                try{
+            final KakaoLink kakaoLink = KakaoLink.getKakaoLink(getApplicationContext());
+            final KakaoTalkLinkMessageBuilder kakaoBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
+
+            kakaoBuilder.addText("smokingproject 테스트다!");
+            kakaoBuilder.addAppButton("앱실행/앱설치");
+            kakaoLink.sendMessage(kakaoBuilder,getApplicationContext());
+
+        }
+        catch (KakaoParameterException e){
+            e.printStackTrace();
+        }
                 Toast.makeText(getApplicationContext(), "OPEN", Toast.LENGTH_SHORT).show();
             }
         });
@@ -162,9 +178,25 @@ public class MainActivity extends AppCompatActivity {
             byte[] msgBuffer = message.getBytes();
             try {
                 mmOutStream.write(msgBuffer);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
             }
         }
     }
 
-}
+//    public void sendkakao(View v){
+//        try{
+//            final KakaoLink kakaoLink = KakaoLink.getKakaoLink(this);
+//            final KakaoTalkLinkMessageBuilder kakaoBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
+//
+//            kakaoBuilder.addText("smokingproject 테스트다!");
+//            kakaoBuilder.addAppButton("앱실행/앱설치");
+//            kakaoLink.sendMessage(kakaoBuilder,this);
+//
+//        }
+//        catch (KakaoParameterException e){
+//            e.printStackTrace();
+//        }
+    }
+
+
