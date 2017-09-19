@@ -176,8 +176,8 @@ public class MainActivity extends AppCompatActivity {
             final KakaoLink kakaoLink = KakaoLink.getKakaoLink(this);
             final KakaoTalkLinkMessageBuilder kakaoBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
 
-            kakaoBuilder.addText("smokingproject 테스트");
-            kakaoBuilder.addAppButton("앱실행");
+            kakaoBuilder.addText("smokingproject 테스트다!");
+            kakaoBuilder.addAppButton("앱실행/앱설치");
             kakaoLink.sendMessage(kakaoBuilder,this);
 
         }
