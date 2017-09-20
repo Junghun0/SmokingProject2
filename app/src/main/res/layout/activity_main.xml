@@ -22,6 +22,12 @@
             android:layout_height="wrap_content"
             android:id="@+id/close"
             android:text="close"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/linktest"
+            android:onClick="sendkakao"
+            android:text="카톡링크test"/>
 
         <TextView
             android:layout_width="wrap_content"

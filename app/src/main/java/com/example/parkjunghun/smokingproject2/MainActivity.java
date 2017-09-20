@@ -12,22 +12,13 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.kakao.kakaolink.KakaoLink;
-import com.kakao.kakaolink.KakaoTalkLinkMessageBuilder;
-import com.kakao.util.KakaoParameterException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.UUID;
-
-import android.os.Handler;
-
-import java.util.logging.LogRecord;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,15 +28,8 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
     private StringBuilder sb = new StringBuilder();
-    private static int flag = 0;
-
-    Handler h;
-    final int RECIEVE_MESSAGE = 1;
-    BluetoothDevice device;
 
     Button onBtn, offBtn;
-    TextView battery;
-
     private ConnectedThread mConnectedThread;
     // SPP UUID service
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -58,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         Intent intent = getIntent();
         String username = intent.getExtras().getString("nickname");
-        actionBar.setTitle(username + "hi");
+        actionBar.setTitle(username+"hi");
         setContentView(R.layout.activity_main);
 
         FragmentManager fm = getSupportFragmentManager();
@@ -70,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
         offBtn = (Button) findViewById(R.id.close);
 
         btAdapter = BluetoothAdapter.getDefaultAdapter();       // get Bluetooth adapter
-        if (checkBTState()) {
-            device = btAdapter.getRemoteDevice(address);
+        if(checkBTState()){
+            BluetoothDevice device = btAdapter.getRemoteDevice(address);
             try {
                 btSocket = createBluetoothSocket(device);
             } catch (Exception e) {
@@ -96,18 +80,6 @@ public class MainActivity extends AppCompatActivity {
         onBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mConnectedThread.write("1");
-                /*try{
-            final KakaoLink kakaoLink = KakaoLink.getKakaoLink(getApplicationContext());
-            final KakaoTalkLinkMessageBuilder kakaoBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
-
-            kakaoBuilder.addText("smokingproject 테스트다!");
-            kakaoBuilder.addAppButton("앱실행/앱설치");
-            kakaoLink.sendMessage(kakaoBuilder,getApplicationContext());
-
-        }
-        catch (KakaoParameterException e){
-            e.printStackTrace();
-        }*/
                 Toast.makeText(getApplicationContext(), "OPEN", Toast.LENGTH_SHORT).show();
             }
         });
@@ -117,24 +89,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "CLOSE", Toast.LENGTH_SHORT).show();
             }
         });
-
-        h = new Handler() {
-            public void handleMessage(android.os.Message msg) {
-                switch (msg.what) {
-                    case RECIEVE_MESSAGE:
-                        byte[] readBuf = (byte[]) msg.obj;
-                        String strIncom = new String(readBuf, 0, msg.arg1);
-                        sb.append(strIncom);
-                        int endOfLineIndex = sb.indexOf("\r\n");
-                        if (endOfLineIndex > 0) {
-                            String sbprint = sb.substring(0, endOfLineIndex);
-                            battery.setText(sbprint);
-                            sb.delete(0, sb.length());
-                        }
-                        break;
-                }
-            }
-        };
 
     }
 
@@ -152,31 +106,6 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
-        try {
-            btSocket = createBluetoothSocket(device);
-        } catch (IOException e) {
-            errorExit("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
-        }
-
-        // Discovery is resource intensive.  Make sure it isn't going on
-        // when you attempt to connect and pass your message.
-        btAdapter.cancelDiscovery();
-
-        // Establish the connection.  This will block until it connects.
-        try {
-            btSocket.connect();
-        } catch (IOException e) {
-            try {
-                btSocket.close();
-            } catch (IOException e2) {
-                errorExit("Fatal Error", "In onResume() and unable to close socket during connection failure" + e2.getMessage() + ".");
-            }
-        }
-
-        // Create a data stream so we can talk to server.
-
-        mConnectedThread = new ConnectedThread(btSocket);
-        mConnectedThread.start();
 
     }
 
@@ -236,37 +165,6 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
             }
         }
-
-        public void run() {
-            byte[] buffer = new byte[256];  // buffer store for the stream
-            int bytes; // bytes returned from read()
-
-            // Keep listening to the InputStream until an exception occurs
-            while (true) {
-                try {
-                    // Read from the InputStream
-                    bytes = mmInStream.read(buffer);        // Get number of bytes and message in "buffer"
-                    h.obtainMessage(RECIEVE_MESSAGE, bytes, -1, buffer).sendToTarget();     // Send to message queue Handler
-                } catch (IOException e) {
-                    break;
-                }
-            }
-        }
     }
 
-//    public void sendkakao(View v){
-//        try{
-//            final KakaoLink kakaoLink = KakaoLink.getKakaoLink(this);
-//            final KakaoTalkLinkMessageBuilder kakaoBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
-//
-//            kakaoBuilder.addText("smokingproject 테스트다!");
-//            kakaoBuilder.addAppButton("앱실행/앱설치");
-//            kakaoLink.sendMessage(kakaoBuilder,this);
-//
-//        }
-//        catch (KakaoParameterException e){
-//            e.printStackTrace();
-//        }
-//    }
 }
-

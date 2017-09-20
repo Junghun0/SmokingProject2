@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "649445141006-hvafuuuabe3cedjsme74idh5af98d53v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.parkjunghun.smokingproject2",
+            "certificate_hash": "c5301594313dec69962ff86800ae9b3a3e1d3df9"
+          }
+        },
+        {
           "client_id": "649445141006-df9kg4dnploivcsd9c15unvs20h3k0g5.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -22,6 +30,9 @@
       "api_key": [
         {
           "current_key": "AIzaSyDDXNLkyEOXOcWq_3R2Oau36glS49uunOs"
+        },
+        {
+          "current_key": "AIzaSyD5AcUpanLbkEV_YcbhkTD3j5ksWBcQwPU"
         }
       ],
       "services": {
@@ -29,8 +40,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "649445141006-df9kg4dnploivcsd9c15unvs20h3k0g5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
