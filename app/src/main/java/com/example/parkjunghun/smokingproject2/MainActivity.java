@@ -6,12 +6,14 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -28,12 +30,14 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
     private StringBuilder sb = new StringBuilder();
+    Handler h;
+    final int RECIEVE_MESSAGE = 1;
 
-    Button onBtn, offBtn;
+    Button onBtn;
     private ConnectedThread mConnectedThread;
     // SPP UUID service
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
+    TextView battery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,15 +55,16 @@ public class MainActivity extends AppCompatActivity {
         fragmentTrasaction.commit();
 
         onBtn = (Button) findViewById(R.id.open);
-        offBtn = (Button) findViewById(R.id.close);
 
         btAdapter = BluetoothAdapter.getDefaultAdapter();       // get Bluetooth adapter
+
+
+
         if(checkBTState()){
             BluetoothDevice device = btAdapter.getRemoteDevice(address);
             try {
                 btSocket = createBluetoothSocket(device);
             } catch (Exception e) {
-                errorExit("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
             }
             btAdapter.cancelDiscovery();
 
@@ -69,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     btSocket.close();
                 } catch (Exception e2) {
-                    errorExit("Fatal Error", "In onResume() and unable to close socket during connection failure" + e2.getMessage() + ".");
                 }
             }
 
@@ -83,12 +87,26 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "OPEN", Toast.LENGTH_SHORT).show();
             }
         });
-        offBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                mConnectedThread.write("2");
-                Toast.makeText(getApplicationContext(), "CLOSE", Toast.LENGTH_SHORT).show();
-            }
-        });
+
+        h = new Handler() {
+            public void handleMessage(android.os.Message msg) {
+                switch (msg.what) {
+                    case RECIEVE_MESSAGE:
+                        byte[] readBuf = (byte[]) msg.obj;
+                        String strIncom = new String(readBuf, 0, msg.arg1);
+                        sb.append(strIncom);
+                        int endOfLineIndex = sb.indexOf("\r\n");
+                        if (endOfLineIndex > 0) {
+                            String sbprint = sb.substring(0, endOfLineIndex);
+                            sb.delete(0, sb.length());
+                            battery = (TextView)findViewById(R.id.battery);
+                            battery.setText(strIncom);
+
+                        }
+                        break;
+                }
+            };
+        };
 
     }
 
@@ -115,14 +133,12 @@ public class MainActivity extends AppCompatActivity {
         try {
             btSocket.close();
         } catch (Exception e2) {
-            errorExit("Fatal Error", "In onPause() and failed to close socket." + e2.getMessage() + ".");
         }
     }
 
     private boolean checkBTState() {
         if (btAdapter == null) {
             Toast.makeText(getApplicationContext(), "지원안됌", Toast.LENGTH_SHORT).show();
-            //errorExit("Fatal Error", "Bluetooth not support");
             return false;
         } else {
             if (btAdapter.isEnabled()) {
@@ -134,10 +150,6 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         }
-    }
-
-    private void errorExit(String title, String message) {
-        Toast.makeText(getApplicationContext(), title + " - " + message, Toast.LENGTH_LONG).show();
     }
 
     private class ConnectedThread extends Thread {
